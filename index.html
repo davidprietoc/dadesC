@@ -28,9 +28,13 @@
                 var geojsonLayer = L.geoJSON(data, {
                     onEachFeature: function (feature, layer) {
                         if (feature.properties) {
-                            var popupContent = `<b>Municipi:</b> ${feature.properties.Municipi}<br>
-                                                <b>Verificats:</b> ${feature.properties.rights_inscrits_verificats}<br>
-                                                <b>No Verificats:</b> ${feature.properties.rights_inscrits_no_verificats}`;
+                            var municipi = feature.properties.Municipi || 'Desconocido';
+                            var verificats = feature.properties.rights_inscrits_verificats || 0;
+                            var noVerificats = feature.properties.rights_inscrits_no_verificats || 0;
+                            
+                            var popupContent = `<b>Municipi:</b> ${municipi}<br>
+                                                <b>Verificats:</b> ${verificats}<br>
+                                                <b>No Verificats:</b> ${noVerificats}`;
                             layer.bindPopup(popupContent);
                         }
                     }
@@ -41,4 +45,3 @@
     </script>
 </body>
 </html>
-
