@@ -24,7 +24,8 @@
         fetch('baseC.geojson') // Carga el archivo GeoJSON
             .then(response => response.json())
             .then(data => {
-                L.geoJSON(data, {
+                console.log("GeoJSON cargado:", data); // Para depuración
+                var geojsonLayer = L.geoJSON(data, {
                     onEachFeature: function (feature, layer) {
                         if (feature.properties) {
                             var popupContent = `<b>Municipi:</b> ${feature.properties.Municipi}<br>
@@ -34,8 +35,10 @@
                         }
                     }
                 }).addTo(map);
+                map.fitBounds(geojsonLayer.getBounds()); // Ajusta la vista a los polígonos
             })
             .catch(error => console.error('Error cargando el GeoJSON:', error));
     </script>
 </body>
 </html>
+
