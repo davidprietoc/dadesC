@@ -28,9 +28,9 @@
                 var geojsonLayer = L.geoJSON(data, {
                     onEachFeature: function (feature, layer) {
                         if (feature.properties) {
-                            var municipi = feature.properties.Municipi || 'Desconocido';
-                            var verificats = feature.properties.rights_inscrits_verificats || 0;
-                            var noVerificats = feature.properties.rights_inscrits_no_verificats || 0;
+                            var municipi = feature.properties.municipi || 'Desconocido';
+                            var verificats = feature.properties.right_inscrits_verificats || 0;
+                            var noVerificats = feature.properties.right_inscrits_no_verificats || 0;
                             
                             var popupContent = `<b>Municipi:</b> ${municipi}<br>
                                                 <b>Verificats:</b> ${verificats}<br>
