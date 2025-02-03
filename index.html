@@ -28,40 +28,27 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        function getQuantiles(values, numClasses) {
-            values.sort((a, b) => a - b);
-            let quantiles = [];
-            for (let i = 1; i < numClasses; i++) {
-                let idx = Math.floor(i * values.length / numClasses);
-                quantiles.push(values[idx]);
-            }
-            return quantiles;
+        function getColor(value) {
+            return value > 120 ? '#800026' :
+                   value > 50  ? '#E31A1C' :
+                   value > 30  ? '#FC4E2A' :
+                   value > 10  ? '#FD8D3C' :
+                                 '#FED976';
+        }
+
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties.right_inscrits_verificats || 0),
+                weight: 1,
+                opacity: 1,
+                color: 'white',
+                fillOpacity: 0.7
+            };
         }
 
         fetch('baseC.geojson') // Carga el archivo GeoJSON
             .then(response => response.json())
             .then(data => {
-                let values = data.features.map(f => f.properties.right_inscrits_verificats || 0);
-                let quantiles = getQuantiles(values, 5);
-
-                function getColor(value) {
-                    return value > quantiles[3] ? '#800026' :
-                           value > quantiles[2] ? '#BD0026' :
-                           value > quantiles[1] ? '#E31A1C' :
-                           value > quantiles[0] ? '#FC4E2A' :
-                           '#FFEDA0';
-                }
-
-                function style(feature) {
-                    return {
-                        fillColor: getColor(feature.properties.right_inscrits_verificats || 0),
-                        weight: 1,
-                        opacity: 1,
-                        color: 'white',
-                        fillOpacity: 0.7
-                    };
-                }
-
                 var geojsonLayer = L.geoJSON(data, {
                     style: style,
                     onEachFeature: function (feature, layer) {
@@ -82,14 +69,13 @@
                 var legend = L.control({position: 'topright'});
                 legend.onAdd = function (map) {
                     var div = L.DomUtil.create('div', 'legend');
-                    var labels = [];
-                    
-                    for (var i = 0; i < quantiles.length; i++) {
-                        labels.push(
-                            '<i style="background:' + getColor(quantiles[i] + 1) + '; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> ' +
-                            (i === 0 ? '0' : quantiles[i - 1]) + '&ndash;' + quantiles[i]);
-                    }
-                    labels.push('<i style="background:' + getColor(quantiles[quantiles.length - 1] + 1) + '; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> ' + quantiles[quantiles.length - 1] + '+');
+                    var labels = [
+                        '<i style="background:#FED976; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> 0 - 10',
+                        '<i style="background:#FD8D3C; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> 11 - 30',
+                        '<i style="background:#FC4E2A; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> 31 - 50',
+                        '<i style="background:#E31A1C; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> 51 - 120',
+                        '<i style="background:#800026; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> 120+'
+                    ];
                     
                     div.innerHTML = '<b>Verificats</b><br>' + labels.join('<br>');
                     return div;
