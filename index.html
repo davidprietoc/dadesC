@@ -9,6 +9,13 @@
         #map {
             height: 100vh;
         }
+        .legend {
+            background: white;
+            padding: 10px;
+            line-height: 1.5em;
+            font-size: 12px;
+            border-radius: 5px;
+        }
     </style>
 </head>
 <body>
@@ -21,11 +28,30 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
+        function getColor(value) {
+            return value > 1000 ? '#800026' :
+                   value > 500  ? '#BD0026' :
+                   value > 200  ? '#E31A1C' :
+                   value > 100  ? '#FC4E2A' :
+                   '#FFEDA0';
+        }
+
+        function style(feature) {
+            return {
+                fillColor: getColor(feature.properties.right_inscrits_verificats || 0),
+                weight: 1,
+                opacity: 1,
+                color: 'white',
+                fillOpacity: 0.7
+            };
+        }
+
         fetch('baseC.geojson') // Carga el archivo GeoJSON
             .then(response => response.json())
             .then(data => {
                 console.log("GeoJSON cargado:", data); // Para depuración
                 var geojsonLayer = L.geoJSON(data, {
+                    style: style,
                     onEachFeature: function (feature, layer) {
                         if (feature.properties) {
                             var municipi = feature.properties.municipi || 'Desconocido';
@@ -42,6 +68,23 @@
                 map.fitBounds(geojsonLayer.getBounds()); // Ajusta la vista a los polígonos
             })
             .catch(error => console.error('Error cargando el GeoJSON:', error));
+
+        var legend = L.control({position: 'topright'});
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            var grades = [0, 100, 200, 500, 1000];
+            var labels = [];
+            
+            for (var i = 0; i < grades.length; i++) {
+                labels.push(
+                    '<i style="background:' + getColor(grades[i] + 1) + '; width: 18px; height: 18px; display: inline-block; margin-right: 5px;"></i> ' +
+                    grades[i] + (grades[i + 1] ? '&ndash;' + grades[i + 1] : '+'));
+            }
+            
+            div.innerHTML = '<b>Verificats</b><br>' + labels.join('<br>');
+            return div;
+        };
+        legend.addTo(map);
     </script>
 </body>
 </html>
